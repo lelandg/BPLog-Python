@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}BPLog{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <h1><a href="{{ url_for('readings.index', t=url_token) }}">BPLog</a></h1>
+  <nav>
+    <a href="{{ url_for('settings_ui.edit', t=url_token) }}">Settings</a>
+    <a href="{{ url_for('exports.text', t=url_token) }}">Export Text</a>
+    <a href="{{ url_for('exports.html', t=url_token) }}">Export HTML</a>
+  </nav>
+</header>
+<main>
+{% block body %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='app.js') }}" data-token="{{ url_token or '' }}"></script>
+</body>
+</html>

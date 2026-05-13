@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}BPLog — Readings{% endblock %}
+{% block body %}
+<section class="identity">
+  <strong>{{ display_name or "(no user set)" }}</strong>
+  {% if display_birthdate %}<span>· born {{ display_birthdate.strftime("%Y-%m-%d") }}</span>{% endif %}
+</section>
+
+<section class="capture">
+  <h2>Capture from photo</h2>
+  <form id="capture-form" enctype="multipart/form-data">
+    <input type="file" id="capture-image" name="image" accept="image/*" capture="environment">
+    <button type="button" id="extract-btn">Extract</button>
+    <span id="extract-status" class="status"></span>
+  </form>
+</section>
+
+<section class="entry">
+  <h2>{% if editing %}Edit reading #{{ editing.id }}{% else %}New reading{% endif %}</h2>
+  <form method="post" action="{{ url_for('readings.add_or_update', t=url_token) }}" enctype="multipart/form-data" id="entry-form">
+    {% if editing %}<input type="hidden" name="edit_id" value="{{ editing.id }}">{% endif %}
+    <input type="hidden" name="user_name" value="{{ display_name }}">
+    <input type="hidden" name="birth_date" value="{{ display_birthdate.strftime('%Y-%m-%d') if display_birthdate else '' }}">
+
+    <label>Systolic <input type="number" name="systolic" id="systolic" min="0" max="300" required value="{{ editing.systolic if editing else '' }}"></label>
+    <label>Diastolic <input type="number" name="diastolic" id="diastolic" min="0" max="200" required value="{{ editing.diastolic if editing else '' }}"></label>
+    <label>Pulse <input type="number" name="pulse" id="pulse" min="0" max="250" required value="{{ editing.pulse if editing else '' }}"></label>
+
+    <label>Date <input type="date" name="reading_date" id="reading-date" required
+      value="{{ (editing.reading_time if editing else now).strftime('%Y-%m-%d') }}"></label>
+    <label>Time <input type="time" name="reading_time" id="reading-time" required
+      value="{{ (editing.reading_time if editing else now).strftime('%H:%M') }}"></label>
+
+    <label class="checkbox"><input type="checkbox" name="standing" {% if editing and editing.standing %}checked{% endif %}> Standing</label>
+
+    <button type="button" id="now-btn">Now</button>
+    <button type="submit">{% if editing %}Update{% else %}Add{% endif %}</button>
+    {% if editing %}<a href="{{ url_for('readings.index', t=url_token) }}">Cancel</a>{% endif %}
+  </form>
+</section>
+
+<section class="history">
+  <h2>Readings ({{ records|length }})</h2>
+  <table>
+    <thead>
+      <tr><th>Date</th><th>Time</th><th>Sys/Dia</th><th>Pulse</th><th>Standing</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td>{{ r.reading_time.strftime("%Y-%m-%d") }}</td>
+        <td>{{ r.reading_time.strftime("%H:%M") }}</td>
+        <td>{{ r.systolic }} / {{ r.diastolic }}</td>
+        <td>{{ r.pulse }}</td>
+        <td>{% if r.standing %}✓{% endif %}</td>
+        <td class="actions">
+          <a href="{{ url_for('readings.index', t=url_token, edit=r.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('readings.delete', t=url_token, reading_id=r.id) }}" class="inline" data-confirm="Delete reading from {{ r.reading_time.strftime('%Y-%m-%d %H:%M') }}?">
+            <button type="submit">Delete</button>
+          </form>
+          <form method="post" action="{{ url_for('readings.set_last_export', t=url_token, reading_id=r.id) }}" class="inline">
+            <button type="submit" title="Treat this reading as the last exported">Set as last exported</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">No readings yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

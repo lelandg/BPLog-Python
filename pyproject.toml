@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bplog"
+version = "0.1.0"
+description = "Local blood pressure log with HTML UI (Python port of the .NET WPF BPLog app)."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Leland Green" }]
+dependencies = [
+    "flask>=3.0",
+    "apscheduler>=3.10",
+    "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+]
+
+[project.scripts]
+bplog = "bplog.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["bplog*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

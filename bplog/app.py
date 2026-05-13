@@ -19,6 +19,8 @@ def create_app(
     paths: Paths,
     settings: Optional[settings_mod.Settings] = None,
     url_token: Optional[str] = None,
+    reminder_state=None,
+    reminder_scheduler=None,
 ) -> Flask:
     app = Flask(
         __name__,
@@ -43,6 +45,11 @@ def create_app(
     app.register_blueprint(settings_bp)
     app.register_blueprint(vision_bp)
     register_token_check(app)
+
+    if reminder_state is not None and reminder_scheduler is not None:
+        from .reminders import register_reminders
+
+        register_reminders(app, reminder_scheduler, reminder_state)
 
     @app.get("/healthz")
     def healthz():  # token-exempt; see auth.py

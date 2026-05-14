@@ -6,6 +6,7 @@ __pycache__/
 .venv_linux/
 venv/
 env/
+Images/
 
 build/
 dist/

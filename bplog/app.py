@@ -11,6 +11,7 @@ from typing import Optional
 
 from flask import Flask
 
+from . import db as db_mod
 from . import settings as settings_mod
 from .config import Paths
 
@@ -28,6 +29,7 @@ def create_app(
         static_folder="static",
     )
     paths.ensure()
+    db_mod.initialize(paths.db)
 
     app.config["bplog_paths"] = paths
     app.config["bplog_settings"] = settings or settings_mod.load(paths.settings)

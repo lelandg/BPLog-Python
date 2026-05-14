@@ -36,11 +36,16 @@ class VisionBackend(ABC):
 
 
 class ClaudeVisionBackend(VisionBackend):
-    def __init__(self, model: str = DEFAULT_MODEL, api_key: Optional[str] = None):
+    def __init__(self, model: str = DEFAULT_MODEL, api_key: Optional[str] = None, timeout: float = 30.0):
         from anthropic import Anthropic
 
+        resolved_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not resolved_key:
+            raise RuntimeError(
+                "ANTHROPIC_API_KEY is not set. Set it in the environment before starting bplog."
+            )
         self.model = model
-        self._client = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
+        self._client = Anthropic(api_key=resolved_key, timeout=timeout)
 
     def extract(self, image_bytes: bytes, mime_type: str = "image/jpeg") -> ReadingDraft:
         b64 = base64.standard_b64encode(image_bytes).decode("ascii")

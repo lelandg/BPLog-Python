@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
+
 from flask import Blueprint, current_app, jsonify, request
 
 from ..images import load_image_bytes
 from ..vision import ClaudeVisionBackend, VisionBackend
+
+log = logging.getLogger("bplog.vision")
 
 bp = Blueprint("vision", __name__)
 
@@ -33,7 +37,8 @@ def extract():
     try:
         draft = _get_backend().extract(image_bytes)
     except Exception as exc:  # surface the error in JSON for the JS client
-        return jsonify({"error": str(exc)}), 500
+        log.exception("Vision extract failed")
+        return jsonify({"error": f"{type(exc).__name__}: {exc}"}), 500
     return jsonify(
         {
             "systolic": draft.systolic,

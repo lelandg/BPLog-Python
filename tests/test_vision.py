@@ -1,11 +1,12 @@
 import io
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
 from PIL import Image
 
 from bplog import vision
-from bplog.images import load_image_bytes
+from bplog.images import extract_exif_datetime, load_image_bytes
 
 
 def _png_bytes():
@@ -19,6 +20,30 @@ def _png_bytes():
 def test_load_image_bytes_returns_jpeg():
     data = load_image_bytes(_png_bytes())
     assert data[:3] == b"\xff\xd8\xff"  # JPEG magic
+
+
+def _jpeg_with_exif(dt_str: str) -> io.BytesIO:
+    img = Image.new("RGB", (60, 40), color="white")
+    exif = img.getexif()
+    exif[36867] = dt_str  # DateTimeOriginal
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", exif=exif)
+    buf.seek(0)
+    return buf
+
+
+def test_extract_exif_datetime_rounds_down():
+    dt = extract_exif_datetime(_jpeg_with_exif("2026:05:14 16:00:29"))
+    assert dt == datetime(2026, 5, 14, 16, 0)
+
+
+def test_extract_exif_datetime_rounds_up():
+    dt = extract_exif_datetime(_jpeg_with_exif("2026:05:14 16:00:30"))
+    assert dt == datetime(2026, 5, 14, 16, 1)
+
+
+def test_extract_exif_datetime_missing():
+    assert extract_exif_datetime(_png_bytes()) is None
 
 
 def test_parse_response_ok():

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import io
 import logging
 
 from flask import Blueprint, current_app, jsonify, request
 
-from ..images import load_image_bytes
+from ..images import extract_exif_datetime, load_image_bytes
 from ..vision import ClaudeVisionBackend, VisionBackend
 
 log = logging.getLogger("bplog.vision")
@@ -33,7 +34,9 @@ def extract():
     file = request.files.get("image")
     if not file or not file.filename:
         return jsonify({"error": "missing image"}), 400
-    image_bytes = load_image_bytes(file.stream)
+    raw = file.stream.read()
+    exif_dt = extract_exif_datetime(io.BytesIO(raw))
+    image_bytes = load_image_bytes(io.BytesIO(raw))
     try:
         draft = _get_backend().extract(image_bytes)
     except Exception as exc:  # surface the error in JSON for the JS client
@@ -47,5 +50,7 @@ def extract():
             "confidence": draft.confidence,
             "notes": draft.notes,
             "raw_response": draft.raw_response,
+            "reading_date": exif_dt.strftime("%Y-%m-%d") if exif_dt else None,
+            "reading_time": exif_dt.strftime("%H:%M") if exif_dt else None,
         }
     )

@@ -6,10 +6,16 @@ We keep them out of the database so the .NET app's schema is untouched.
 from __future__ import annotations
 
 import io
+from datetime import datetime, timedelta
 from pathlib import Path
-from typing import BinaryIO
+from typing import BinaryIO, Optional
 
 from PIL import Image, ImageOps
+
+# EXIF tag IDs (see PIL.ExifTags.TAGS)
+_EXIF_DATETIME_ORIGINAL = 36867
+_EXIF_DATETIME_DIGITIZED = 36868
+_EXIF_DATETIME = 306
 
 MAX_LONG_EDGE = 1568  # Claude's recommended cap; smaller than this is fine.
 
@@ -59,3 +65,32 @@ def load_image_bytes(stream: BinaryIO) -> bytes:
     buf = io.BytesIO()
     img.save(buf, format="JPEG", quality=85, optimize=True)
     return buf.getvalue()
+
+
+def extract_exif_datetime(stream: BinaryIO) -> Optional[datetime]:
+    """Return the photo's capture time from EXIF, rounded to the nearest minute.
+
+    Prefers DateTimeOriginal, then DateTimeDigitized, then DateTime. Returns
+    None if no EXIF datetime is present or it can't be parsed.
+    """
+    try:
+        img = Image.open(stream)
+        exif = img.getexif()
+    except Exception:
+        return None
+    if not exif:
+        return None
+    raw: Optional[str] = None
+    for tag in (_EXIF_DATETIME_ORIGINAL, _EXIF_DATETIME_DIGITIZED, _EXIF_DATETIME):
+        val = exif.get(tag)
+        if isinstance(val, str) and val.strip():
+            raw = val.strip()
+            break
+    if not raw:
+        return None
+    try:
+        dt = datetime.strptime(raw, "%Y:%m:%d %H:%M:%S")
+    except ValueError:
+        return None
+    rounded = dt + timedelta(seconds=30)
+    return rounded.replace(second=0, microsecond=0)

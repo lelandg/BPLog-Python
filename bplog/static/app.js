@@ -56,6 +56,8 @@
         set("systolic", data.systolic);
         set("diastolic", data.diastolic);
         set("pulse", data.pulse);
+        set("reading-date", data.reading_date);
+        set("reading-time", data.reading_time);
 
         // Also stash the file on the entry form so it saves alongside the reading.
         const entryFile = document.querySelector('#entry-form input[name="image"]');

@@ -1,15 +1,14 @@
 """BPLog server entry point.
 
 Resolves paths, loads settings, binds to the configured Meshnet IP
-(falling back to 127.0.0.1 on bind failure), generates a per-startup
-URL token, starts the reminder scheduler, opens the user's browser,
-and serves Flask via the stdlib WSGI server (no Werkzeug reloader).
+(falling back to 127.0.0.1 on bind failure), starts the reminder
+scheduler, opens the user's browser, and serves Flask via the stdlib
+WSGI server (no Werkzeug reloader).
 """
 from __future__ import annotations
 
 import logging
 import os
-import secrets
 import socket
 import subprocess
 import sys
@@ -127,7 +126,6 @@ def main() -> int:
     preferred = os.environ.get("BPLOG_BIND") or settings.server.bind_address
     host = _resolve_bind(preferred)
     port = _pick_port(host)
-    token = secrets.token_urlsafe(16)
 
     state = ReminderState()
     scheduler = ReminderScheduler(settings, state)
@@ -136,12 +134,11 @@ def main() -> int:
     app = create_app(
         paths=paths,
         settings=settings,
-        url_token=token,
         reminder_state=state,
         reminder_scheduler=scheduler,
     )
 
-    url = f"http://{host}:{port}/?t={token}"
+    url = f"http://{host}:{port}/"
     log.info("BPLog serving at %s", url)
     _copy_to_clipboard(url)
 

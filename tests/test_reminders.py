@@ -51,7 +51,7 @@ def test_banner_renders_when_triggered(tmp_path):
     s = settings_mod.Settings(user_name="Alice", birth_date=datetime(1970, 1, 1))
     state = ReminderState()
     sched = ReminderScheduler(s, state)
-    app = create_app(paths=paths, settings=s, url_token=None, reminder_state=state, reminder_scheduler=sched)
+    app = create_app(paths=paths, settings=s, reminder_state=state, reminder_scheduler=sched)
 
     fake_trigger_now(state, datetime(2026, 5, 13, 7, 0))
     with app.test_client() as client:

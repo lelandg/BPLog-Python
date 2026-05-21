@@ -17,7 +17,7 @@
 
 <section class="entry">
   <h2>{% if editing %}Edit reading #{{ editing.id }}{% else %}New reading{% endif %}</h2>
-  <form method="post" action="{{ url_for('readings.add_or_update', t=url_token) }}" enctype="multipart/form-data" id="entry-form">
+  <form method="post" action="{{ url_for('readings.add_or_update') }}" enctype="multipart/form-data" id="entry-form">
     {% if editing %}<input type="hidden" name="edit_id" value="{{ editing.id }}">{% endif %}
     <input type="hidden" name="user_name" value="{{ display_name }}">
     <input type="hidden" name="birth_date" value="{{ display_birthdate.strftime('%Y-%m-%d') if display_birthdate else '' }}">
@@ -35,7 +35,7 @@
 
     <button type="button" id="now-btn">Now</button>
     <button type="submit">{% if editing %}Update{% else %}Add{% endif %}</button>
-    {% if editing %}<a href="{{ url_for('readings.index', t=url_token) }}">Cancel</a>{% endif %}
+    {% if editing %}<a href="{{ url_for('readings.index') }}">Cancel</a>{% endif %}
   </form>
 </section>
 
@@ -54,11 +54,11 @@
         <td>{{ r.pulse }}</td>
         <td>{% if r.standing %}✓{% endif %}</td>
         <td class="actions">
-          <a href="{{ url_for('readings.index', t=url_token, edit=r.id) }}">Edit</a>
-          <form method="post" action="{{ url_for('readings.delete', t=url_token, reading_id=r.id) }}" class="inline" data-confirm="Delete reading from {{ r.reading_time.strftime('%Y-%m-%d %H:%M') }}?">
+          <a href="{{ url_for('readings.index', edit=r.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('readings.delete', reading_id=r.id) }}" class="inline" data-confirm="Delete reading from {{ r.reading_time.strftime('%Y-%m-%d %H:%M') }}?">
             <button type="submit">Delete</button>
           </form>
-          <form method="post" action="{{ url_for('readings.set_last_export', t=url_token, reading_id=r.id) }}" class="inline">
+          <form method="post" action="{{ url_for('readings.set_last_export', reading_id=r.id) }}" class="inline">
             <button type="submit" title="Treat this reading as the last exported">Set as last exported</button>
           </form>
         </td>

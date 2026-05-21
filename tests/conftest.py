@@ -27,7 +27,7 @@ def app(paths: Paths) -> Iterator:
         birth_date=__import__("datetime").datetime(1970, 1, 1),
     )
     settings_mod.save(paths.settings, settings)
-    flask_app = create_app(paths=paths, settings=settings, url_token=None)
+    flask_app = create_app(paths=paths, settings=settings)
     flask_app.config["TESTING"] = True
     yield flask_app
 

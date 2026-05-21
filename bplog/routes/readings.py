@@ -46,7 +46,7 @@ def _parse_reading_datetime(date_str: str, time_str: str) -> datetime:
 
 
 def _redirect_root():
-    return redirect(url_for("readings.index", t=current_app.config.get("bplog_url_token")))
+    return redirect(url_for("readings.index"))
 
 
 @bp.get("/")
@@ -94,7 +94,7 @@ def add_or_update():
     )
     if not name or not bd_str:
         # No identity yet — bounce to settings.
-        return redirect(url_for("settings_ui.edit", t=current_app.config.get("bplog_url_token")))
+        return redirect(url_for("settings_ui.edit"))
 
     birthdate = datetime.strptime(bd_str, "%Y-%m-%d")
     user_id = repository.upsert_user(paths.db, name, birthdate)

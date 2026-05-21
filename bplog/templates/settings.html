@@ -2,7 +2,7 @@
 {% block title %}BPLog — Settings{% endblock %}
 {% block body %}
 <h2>Settings</h2>
-<form method="post" action="{{ url_for('settings_ui.save', t=url_token) }}">
+<form method="post" action="{{ url_for('settings_ui.save') }}">
   <fieldset>
     <legend>Identity</legend>
     <label>Name <input type="text" name="user_name" value="{{ settings.user_name }}" required></label>
@@ -30,6 +30,6 @@
   </fieldset>
 
   <button type="submit">Save</button>
-  <a href="{{ url_for('readings.index', t=url_token) }}">Cancel</a>
+  <a href="{{ url_for('readings.index') }}">Cancel</a>
 </form>
 {% endblock %}

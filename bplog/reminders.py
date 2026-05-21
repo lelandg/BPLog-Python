@@ -93,8 +93,7 @@ def register_reminders(app, scheduler: ReminderScheduler, state: ReminderState) 
     @app.post("/reminders/dismiss")
     def _dismiss():
         state.dismiss()
-        token = app.config.get("bplog_url_token")
-        next_url = request.form.get("next") or url_for("readings.index", t=token)
+        next_url = request.form.get("next") or url_for("readings.index")
         return redirect(next_url)
 
 

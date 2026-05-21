@@ -34,7 +34,7 @@ def test_app_serves_via_make_server(tmp_path: Path):
     )
     paths.ensure()
     db.initialize(paths.db)
-    app = create_app(paths=paths, url_token="t1")
+    app = create_app(paths=paths)
     with app.test_client() as c:
         assert c.get("/healthz").status_code == 200
-        assert c.get("/?t=t1").status_code == 200
+        assert c.get("/").status_code == 200

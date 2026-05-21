@@ -1,6 +1,4 @@
 (() => {
-  const token = document.currentScript?.dataset?.token || "";
-
   // Delete-confirm dialogs
   document.querySelectorAll("form[data-confirm]").forEach((f) => {
     f.addEventListener("submit", (e) => {
@@ -39,7 +37,7 @@
 
       const fd = new FormData();
       fd.append("image", file);
-      const url = `/readings/extract${token ? `?t=${encodeURIComponent(token)}` : ""}`;
+      const url = "/readings/extract";
       try {
         const res = await fetch(url, { method: "POST", body: fd });
         const data = await res.json();

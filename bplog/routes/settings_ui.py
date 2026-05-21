@@ -50,4 +50,4 @@ def save():
         s.reminders.times = parsed
 
     settings_mod.save(_paths().settings, s)
-    return redirect(url_for("readings.index", t=current_app.config.get("bplog_url_token")))
+    return redirect(url_for("readings.index"))
